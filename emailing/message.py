@@ -2,44 +2,42 @@
 emailing/message.py — contenu des emails (modifiable ici, sans toucher au code).
 """
 
-# --- Mail envoyé aux agences / notaires --------------------------------------
+# --- Mail envoyé aux 25 contacts (texte unique, identique pour tous) ---------
 
-SUBJECT = (
-    "Recherche achat investissement locatif – studio/T2, "
-    "secteur Le Portail Rouge / Fauriel (Saint-Étienne)"
-)
+SUBJECT = "Recherche d'achat – résidence Le Portail Rouge (Saint-Étienne)"
 
-# Texte exact fourni par Romain. {greeting} permet d'adapter "agence"/"étude".
+# Texte EXACT fourni par Romain. Pas de personnalisation : même mail pour tous.
 BODY = """\
 Bonjour,
 
-Je suis acheteur pour un investissement locatif sur Saint-Étienne et je me permets de vous transmettre ma recherche, au cas où un bien correspondant passerait par votre {lieu}.
+Je me permets de vous contacter en tant qu'acheteur pour un investissement locatif sur Saint-Étienne.
 
-Je vise en priorité la résidence Le Portail Rouge (118 rue Crozet Boussingault), dont j'apprécie particulièrement le cadre, et je reste ouvert au secteur Fauriel / Crêt de Roc.
+Je suis particulièrement intéressé par la résidence Le Portail Rouge (118 rue Crozet Boussingault, bâtiments Séquoïa, Érable, Sycomore, Sophora, Épicéa), dont vous êtes le syndic. J'apprécie beaucoup le cadre et l'environnement de cette copropriété, et c'est le secteur que je vise en priorité.
 
 Mes critères :
 - Type : studio ou T2
-- Budget : jusqu'à 60 000 € environ, frais inclus
+- Budget : jusqu'à 60 000 €
 - État : clé en main, sans travaux à prévoir
-- DPE : A à E
-- Étage : à partir du 1er, un étage élevé avec vue est un plus
+- DPE : A à E (pas de passoire énergétique)
+- Étage : à partir du 1er (pas de rez-de-chaussée), un étage élevé avec vue est un plus
 - Balcon apprécié
-- Bien loué ou immédiatement louable, meublé de préférence
+- Bien loué ou immédiatement louable, en meublé de préférence
 
-Mon profil : achat au comptant, sans condition suspensive de prêt, prêt à me positionner et signer rapidement.
+Mon profil :
+- Achat au comptant, sans condition suspensive de prêt
+- Prêt à me positionner et signer rapidement
 
-Seriez-vous en mesure de me proposer des biens correspondants, ou de me prévenir lorsqu'un lot se libère ? Je suis joignable au 07 82 74 00 58 et par mail.
+Seriez-vous en mesure de me proposer des biens à la vente dans cette résidence, ou de me prévenir en priorité lorsqu'un lot s'y libère ?
 
-Je vous remercie par avance.
+Vous pouvez m'écrire au 07 82 74 00 58 et par mail. Je vous remercie par avance.
 
 Bien cordialement,
 Romain Taugourdeau"""
 
 
-def build_body(vertical: str) -> str:
-    """Adapte 'votre agence' -> 'votre étude' pour les notaires."""
-    lieu = "étude" if vertical == "notaires" else "agence"
-    return BODY.format(lieu=lieu)
+def build_body(vertical: str = "") -> str:
+    """Même texte pour tout le monde (agences comme notaires)."""
+    return BODY
 
 
 # --- Mes liens de recherche (récap envoyé à moi-même) ------------------------
@@ -66,6 +64,6 @@ def build_recap_body(n_contacts: int) -> str:
         f"Mail envoyé à {n_contacts} contacts (agences + notaires).\n\n"
         "Mes liens de recherche enregistrés :\n\n"
         f"{links}\n\n"
-        "Critères : studio/T2, ≤ 60 000 € FAI, clé en main, DPE A-E, "
-        "secteur Le Portail Rouge / Fauriel / Crêt de Roc.\n"
+        "Critères : studio/T2, ≤ 60 000 €, clé en main, DPE A-E, "
+        "résidence Le Portail Rouge.\n"
     )
