@@ -1,0 +1,51 @@
+name: Scraper contacts
+
+# Lancement MANUEL depuis l'onglet "Actions" (bouton "Run workflow").
+on:
+  workflow_dispatch:
+    inputs:
+      cible:
+        description: "Quoi scraper"
+        type: choice
+        options:
+          - notaires
+          - immo
+          - les_deux
+        default: notaires
+      immo_max_pages:
+        description: "Immo : nb max de pages immomatin (borne le crawl, immomatin = annuaire national)"
+        default: "60"
+
+permissions:
+  contents: write   # pour committer exports/ + master/ mis à jour
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: pip install -r requirements.txt
+
+      - name: Scrape
+        env:
+          CIBLE: ${{ inputs.cible }}
+          IMMO_MAX_PAGES: ${{ inputs.immo_max_pages }}
+        run: python scrape.py
+
+      - name: Build master (fusion seed + scraping, filtre Saint-Étienne)
+        run: python build_master.py
+
+      - name: Committer exports + master
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add exports master
+          git commit -m "scrape + maj master" || echo "rien a committer"
+          git push || true
