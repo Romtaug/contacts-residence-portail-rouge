@@ -12,7 +12,7 @@ Bonjour,
 
 Je me permets de vous contacter en tant qu'acheteur pour un investissement locatif sur Saint-Étienne.
 
-Je suis particulièrement intéressé par la résidence Le Portail Rouge (118 rue Crozet Boussingault, bâtiments Séquoïa, Érable, Sycomore, Sophora, Épicéa), dont vous êtes le syndic. J'apprécie beaucoup le cadre et l'environnement de cette copropriété, et c'est le secteur que je vise en priorité.
+Je suis particulièrement intéressé par la résidence Le Portail Rouge (118 rue Crozet Boussingault, bâtiments Séquoïa, Érable, Sycomore, Sophora, Épicéa). J'apprécie beaucoup le cadre et l'environnement de cette copropriété, et c'est le secteur que je vise en priorité.
 
 Mes critères :
 - Type : studio ou T2
