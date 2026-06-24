@@ -103,6 +103,8 @@ def main() -> int:
     ap.add_argument("--real", action="store_true", help="envoi réel aux vrais contacts")
     ap.add_argument("--dry-run", action="store_true", help="n'envoie rien, affiche les mails")
     ap.add_argument("--no-recap", action="store_true", help="ne pas s'envoyer le récap de liens")
+    ap.add_argument("--resend-all", action="store_true",
+                    help="renvoyer à TOUT le monde, même aux contacts déjà 'sent' (relance)")
     ap.add_argument("--limit", type=int, default=None, help="limiter le nombre d'envois")
     args = ap.parse_args()
 
@@ -128,7 +130,10 @@ def main() -> int:
             return 1
 
     rows = read_master()
-    pending = [r for r in rows if (r.get("send_status") or "").strip() != "sent"]
+    if args.resend_all:
+        pending = list(rows)            # relance : on renvoie à tout le monde
+    else:
+        pending = [r for r in rows if (r.get("send_status") or "").strip() != "sent"]
     if args.limit:
         pending = pending[: args.limit]
 
