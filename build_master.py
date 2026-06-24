@@ -45,7 +45,6 @@ MASTER_XLSX = BASE_DIR / "master" / "contacts_master.xlsx"
 # ---------------------------------------------------------------------------
 
 CP_42 = re.compile(r"\b42\d{3}\b")
-SE_TOKENS = ("saint-etienne", "saint etienne", "st-etienne", "st etienne", "st.etienne")
 
 
 def _strip_accents(s: str) -> str:
@@ -58,23 +57,38 @@ def _norm(s) -> str:
     return _strip_accents(("" if s is None else str(s))).strip().lower()
 
 
+# Le nom doit être COLLÉ à un code postal de Saint-Étienne (= la commune),
+# pas juste apparaître dans une adresse type "rue de Saint-Étienne" d'une
+# autre ville (ex : Saint-Chamond 42400, Balbigny 42510).
+_SE_CP = r"(?:4200\d|4201\d|4202\d|4203\d|4205\d|42100|42230|4295\d)"
+_NAME = r"(?:saint[- ]etienne|st[-. ]?etienne)"
+_SE_PATTERNS = (
+    re.compile(_NAME + r"\s*\(\s*" + _SE_CP),         # "saint-etienne (42000)"
+    re.compile(r"\b" + _SE_CP + r"\b\s+" + _NAME + r"\b"),  # "42000 saint-etienne"
+    re.compile(_NAME + r"\s+" + _SE_CP + r"\b"),       # "saint-etienne 42000"
+)
+
+
 def is_saint_etienne(text: str) -> bool:
     """
-    True si le texte correspond bien à la VILLE de Saint-Étienne (42) :
-    on exige le nom 'saint-etienne' ET un code postal 42xxx.
-    -> exclut les communes voisines (Saint-Priest-en-Jarez, Roche-la-Molière...)
-       et les homonymes (Saint-Étienne-de-Montluc en 44, etc.).
+    True seulement si le texte désigne la VILLE de Saint-Étienne (42), avec le
+    nom de commune directement associé à un code postal stéphanois.
+    -> exclut les communes voisines, les homonymes (Saint-Étienne-de-Montluc)
+       et les adresses qui ne font que citer une "rue de Saint-Étienne" ailleurs.
     """
     t = _norm(text)
-    if "saint-etienne-de" in t or "saint etienne de" in t:
+    if "saint-etienne-de" in t or "st-etienne-de" in t:
         return False  # Saint-Étienne-de-Montluc / -du-Rouvray / etc.
-    has_name = any(tok in t for tok in SE_TOKENS)
-    has_cp = bool(CP_42.search(t))
-    return has_name and has_cp
+    return any(p.search(t) for p in _SE_PATTERNS)
 
 
 def _geo_notaire(row: dict) -> bool:
-    blob = " ".join(_norm(row.get(c)) for c in ("city", "address", "department", "office"))
+    # Le champ 'city' de notaires.fr est fiable : on tranche dessus en priorité.
+    city = _norm(row.get("city"))
+    if city:
+        return city == "saint-etienne"
+    # Pas de ville renseignée -> repli sur l'adresse / le nom d'office.
+    blob = " ".join(_norm(row.get(c)) for c in ("address", "office", "department"))
     return is_saint_etienne(blob)
 
 
