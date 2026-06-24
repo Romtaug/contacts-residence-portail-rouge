@@ -1,28 +1,26 @@
-name: Scraper contacts
+name: Envoi mails prospection
 
-# Lancement MANUEL depuis l'onglet "Actions" (bouton "Run workflow").
 on:
+  # Lancement manuel (test ou real)
   workflow_dispatch:
     inputs:
-      cible:
-        description: "Quoi scraper"
+      mode:
+        description: "Mode (test = sur ton adresse ; real = vrais contacts)"
         type: choice
         options:
-          - notaires
-          - immo
-          - les_deux
-        default: notaires
-      immo_max_pages:
-        description: "Immo : nb max de pages immomatin (borne le crawl, immomatin = annuaire national)"
-        default: "60"
+          - test
+          - real
+        default: test
+  # Lancement AUTOMATIQUE : le 25 de chaque mois à 07h00 UTC (~09h Paris l'été)
+  schedule:
+    - cron: "0 7 25 * *"
 
 permissions:
-  contents: write   # pour committer exports/ + master/ mis à jour
+  contents: write
 
 jobs:
-  scrape:
+  send:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -33,19 +31,25 @@ jobs:
       - name: Install deps
         run: pip install -r requirements.txt
 
-      - name: Scrape
+      - name: Envoi des mails
         env:
-          CIBLE: ${{ inputs.cible }}
-          IMMO_MAX_PAGES: ${{ inputs.immo_max_pages }}
-        run: python scrape.py
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            # Run mensuel automatique : envoi RÉEL + relance à tout le monde
+            python emailing/send.py --real --resend-all
+          elif [ "${{ inputs.mode }}" = "real" ]; then
+            python emailing/send.py --real
+          else
+            python emailing/send.py
+          fi
 
-      - name: Build master (fusion seed + scraping, filtre Saint-Étienne)
-        run: python build_master.py
-
-      - name: Committer exports + master
+      - name: Sauvegarder le suivi
+        if: ${{ github.event_name == 'schedule' || inputs.mode == 'real' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add exports master
-          git commit -m "scrape + maj master" || echo "rien a committer"
+          git add master/contacts_master.csv
+          git commit -m "maj suivi envoi" || echo "rien a committer"
           git push || true
