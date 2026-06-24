@@ -1,19 +1,22 @@
 name: Envoi mails prospection
 
-# Lancement MANUEL depuis l'onglet "Actions" de GitHub (bouton "Run workflow").
 on:
+  # Lancement manuel (test ou real)
   workflow_dispatch:
     inputs:
       mode:
-        description: "Mode d'envoi (test = tout sur TON adresse ; real = vrais contacts)"
+        description: "Mode (test = sur ton adresse ; real = vrais contacts)"
         type: choice
         options:
           - test
           - real
         default: test
+  # Lancement AUTOMATIQUE : le 25 de chaque mois à 07h00 UTC (~09h Paris l'été)
+  schedule:
+    - cron: "0 7 25 * *"
 
 permissions:
-  contents: write   # pour sauvegarder le suivi d'envoi en mode real
+  contents: write
 
 jobs:
   send:
@@ -33,14 +36,17 @@ jobs:
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: |
-          if [ "${{ inputs.mode }}" = "real" ]; then
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            # Run mensuel automatique : envoi RÉEL + relance à tout le monde
+            python emailing/send.py --real --resend-all
+          elif [ "${{ inputs.mode }}" = "real" ]; then
             python emailing/send.py --real
           else
             python emailing/send.py
           fi
 
-      - name: Sauvegarder le suivi (mode real uniquement)
-        if: ${{ inputs.mode == 'real' }}
+      - name: Sauvegarder le suivi
+        if: ${{ github.event_name == 'schedule' || inputs.mode == 'real' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
