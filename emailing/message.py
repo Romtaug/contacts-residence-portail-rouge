@@ -1,5 +1,5 @@
 """
-emailing/message.py — contenu des emails (modifiable ici, sans toucher au code).
+emailing/message.py - contenu des emails (modifiable ici, sans toucher au code).
 """
 
 # --- Mail envoyé aux 25 contacts (texte unique, identique pour tous) ---------
