@@ -1,4 +1,4 @@
-# Prospection Saint-Étienne — agences immo + notaires
+# Prospection Saint-Étienne - agences immo + notaires
 
 Pipeline de prospection **automatique** pour **la ville de Saint-Étienne (42)**.
 Il fusionne dans **une seule table dédoublonnée** :
