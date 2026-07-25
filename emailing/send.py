@@ -1,5 +1,5 @@
 """
-emailing/send.py — Envoi des mails (Gmail SMTP, mot de passe d'application)
+emailing/send.py - Envoi des mails (Gmail SMTP, mot de passe d'application)
 ===========================================================================
 
 3 niveaux, du plus sûr au plus engageant :
@@ -119,7 +119,7 @@ def main() -> int:
     else:
         mode = "TEST"
 
-    print(f"\n=== Envoi mails — mode {mode} ===\n")
+    print(f"\n=== Envoi mails - mode {mode} ===\n")
 
     # Vérif des identifiants (sauf dry-run)
     from_addr = gmail or "moi@exemple.com"
@@ -138,7 +138,7 @@ def main() -> int:
         pending = pending[: args.limit]
 
     if not pending:
-        print("Aucun contact 'pending' — tout a déjà été envoyé.")
+        print("Aucun contact 'pending' - tout a déjà été envoyé.")
     else:
         print(f"{len(pending)} contact(s) à traiter "
               f"(cap quotidien {DAILY_CAP}).\n")
@@ -172,7 +172,7 @@ def main() -> int:
         else:  # TEST / DRY-RUN : tout vers soi, on annonce le vrai destinataire
             to_addr = from_addr
             sub = f"[TEST → {real_to}] {subject}"
-            body = (f"*** MODE TEST — ce mail serait envoyé à : {real_to} "
+            body = (f"*** MODE TEST - ce mail serait envoyé à : {real_to} "
                     f"({company} / {vertical}) ***\n\n{body}")
 
         em = build_email(from_addr, to_addr, sub, body)
@@ -233,7 +233,7 @@ def main() -> int:
         write_master(rows)
         print("\nSuivi mis à jour dans master/contacts_master.csv")
 
-    print(f"\nTerminé — mode {mode} — {sent} mail(s) traité(s).")
+    print(f"\nTerminé - mode {mode} - {sent} mail(s) traité(s).")
     if mode == "TEST":
         print("=> Vérifie ta boîte. Si OK, relance avec --real pour les vrais contacts.")
     return 0
